@@ -72,7 +72,7 @@ export function EvolutionChart({
     };
 
     return (
-        <div className="flex flex-col space-y-4 bg-white p-6 border-4 border-black hover:bg-gray-50 transition-all group overflow-hidden">
+        <div className="flex flex-col space-y-4 bg-white p-4 md:p-6 border-4 border-black hover:bg-gray-50 transition-all group overflow-hidden min-h-[200px]">
             <div className="flex justify-between items-start">
                 <div className="space-y-1">
                     <div className="flex items-center gap-2">
@@ -101,95 +101,101 @@ export function EvolutionChart({
             </div>
 
             {/* Staircase Chart with Axes */}
-            <div className="relative w-full h-32 mt-4">
-                <svg
-                    ref={svgRef}
-                    width="100%"
-                    height="100%"
-                    viewBox={`0 0 ${width} ${height}`}
-                    preserveAspectRatio="none"
-                    className="overflow-visible cursor-crosshair"
-                    onMouseMove={handleMouseMove}
-                    onMouseLeave={() => setHoverIndex(null)}
-                >
-                    <defs>
-                        <linearGradient id={`grad-${label.replace(/\s/g, '')}`} x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" stopColor={color} stopOpacity="0.2" />
-                            <stop offset="100%" stopColor={color} stopOpacity="0" />
-                        </linearGradient>
-                    </defs>
+            <div className="relative w-full h-24 md:h-32 mt-4">
+                {data.length < 2 ? (
+                    <div className="flex items-center justify-center h-full text-gray-400 text-sm font-bold uppercase">
+                        <span>⏳ Esperando datos...</span>
+                    </div>
+                ) : (
+                    <svg
+                        ref={svgRef}
+                        width="100%"
+                        height="100%"
+                        viewBox={`0 0 ${width} ${height}`}
+                        preserveAspectRatio="xMidYMid meet"
+                        className="overflow-visible cursor-crosshair"
+                        onMouseMove={handleMouseMove}
+                        onMouseLeave={() => setHoverIndex(null)}
+                    >
+                        <defs>
+                            <linearGradient id={`grad-${label.replace(/\s/g, '')}`} x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stopColor={color} stopOpacity="0.2" />
+                                <stop offset="100%" stopColor={color} stopOpacity="0" />
+                            </linearGradient>
+                        </defs>
 
-                    {/* Y-Axis Labels */}
-                    <text x={padding.left - 5} y={padding.top + 5} textAnchor="end" className="text-[8px] font-bold fill-gray-400">
-                        {formatCurrency(stats.max, mainCurrency).split(',')[0]}
-                    </text>
-                    <text x={padding.left - 5} y={padding.top + chartHeight} textAnchor="end" className="text-[8px] font-bold fill-gray-400">
-                        {formatCurrency(stats.min, mainCurrency).split(',')[0]}
-                    </text>
+                        {/* Y-Axis Labels */}
+                        <text x={padding.left - 5} y={padding.top + 5} textAnchor="end" className="text-[8px] font-bold fill-gray-400">
+                            {formatCurrency(stats.max, mainCurrency).split(',')[0]}
+                        </text>
+                        <text x={padding.left - 5} y={padding.top + chartHeight} textAnchor="end" className="text-[8px] font-bold fill-gray-400">
+                            {formatCurrency(stats.min, mainCurrency).split(',')[0]}
+                        </text>
 
-                    {/* Grid Lines */}
-                    <line x1={padding.left} y1={padding.top} x2={width - padding.right} y2={padding.top} stroke="#eee" strokeWidth="1" />
-                    <line x1={padding.left} y1={padding.top + chartHeight} x2={width - padding.right} y2={padding.top + chartHeight} stroke="#ddd" strokeWidth="2" />
-                    <line x1={padding.left} y1={padding.top} x2={padding.left} y2={padding.top + chartHeight} stroke="#ddd" strokeWidth="2" />
+                        {/* Grid Lines */}
+                        <line x1={padding.left} y1={padding.top} x2={width - padding.right} y2={padding.top} stroke="#eee" strokeWidth="1" />
+                        <line x1={padding.left} y1={padding.top + chartHeight} x2={width - padding.right} y2={padding.top + chartHeight} stroke="#ddd" strokeWidth="2" />
+                        <line x1={padding.left} y1={padding.top} x2={padding.left} y2={padding.top + chartHeight} stroke="#ddd" strokeWidth="2" />
 
-                    {/* Area under line */}
-                    {data.length >= 2 && (
-                        <path
-                            d={`${generateStaircasePath()} L ${padding.left + chartWidth} ${padding.top + chartHeight} L ${padding.left} ${padding.top + chartHeight} Z`}
-                            fill={`url(#grad-${label.replace(/\s/g, '')})`}
-                            className="transition-all duration-300"
-                        />
-                    )}
+                        {/* Area under line */}
+                        {data.length >= 2 && (
+                            <path
+                                d={`${generateStaircasePath()} L ${padding.left + chartWidth} ${padding.top + chartHeight} L ${padding.left} ${padding.top + chartHeight} Z`}
+                                fill={`url(#grad-${label.replace(/\s/g, '')})`}
+                                className="transition-all duration-300"
+                            />
+                        )}
 
-                    {/* Staircase line */}
-                    {data.length >= 2 && (
-                        <path
-                            d={generateStaircasePath()}
-                            fill="none"
-                            stroke={color}
-                            strokeWidth="2.5"
-                            strokeLinecap="square"
-                            strokeLinejoin="miter"
-                            className="transition-all duration-300"
-                        />
-                    )}
-
-                    {/* X-Axis Labels */}
-                    {data.length > 0 && (
-                        <>
-                            <text x={padding.left} y={height - 5} textAnchor="start" className="text-[8px] font-bold fill-gray-400">
-                                {data[0].time}
-                            </text>
-                            <text x={padding.left + chartWidth} y={height - 5} textAnchor="end" className="text-[8px] font-bold fill-gray-400">
-                                {data[data.length - 1].time}
-                            </text>
-                        </>
-                    )}
-
-                    {/* Interaction Line & Point */}
-                    {hoverIndex !== null && (
-                        <>
-                            <line
-                                x1={padding.left + (hoverIndex * chartWidth) / (data.length - 1)}
-                                y1={padding.top}
-                                x2={padding.left + (hoverIndex * chartWidth) / (data.length - 1)}
-                                y2={padding.top + chartHeight}
+                        {/* Staircase line */}
+                        {data.length >= 2 && (
+                            <path
+                                d={generateStaircasePath()}
+                                fill="none"
                                 stroke={color}
-                                strokeWidth="1"
-                                strokeDasharray="2,2"
+                                strokeWidth="2.5"
+                                strokeLinecap="square"
+                                strokeLinejoin="miter"
+                                className="transition-all duration-300"
                             />
-                            <rect
-                                x={padding.left + (hoverIndex * chartWidth) / (data.length - 1) - 3}
-                                y={padding.top + chartHeight - ((data[hoverIndex].value - stats.min) / stats.range) * chartHeight - 3}
-                                width="6"
-                                height="6"
-                                fill={color}
-                                stroke="white"
-                                strokeWidth="1"
-                            />
-                        </>
-                    )}
-                </svg>
+                        )}
+
+                        {/* X-Axis Labels */}
+                        {data.length > 0 && (
+                            <>
+                                <text x={padding.left} y={height - 5} textAnchor="start" className="text-[8px] font-bold fill-gray-400">
+                                    {data[0].time}
+                                </text>
+                                <text x={padding.left + chartWidth} y={height - 5} textAnchor="end" className="text-[8px] font-bold fill-gray-400">
+                                    {data[data.length - 1].time}
+                                </text>
+                            </>
+                        )}
+
+                        {/* Interaction Line & Point */}
+                        {hoverIndex !== null && (
+                            <>
+                                <line
+                                    x1={padding.left + (hoverIndex * chartWidth) / (data.length - 1)}
+                                    y1={padding.top}
+                                    x2={padding.left + (hoverIndex * chartWidth) / (data.length - 1)}
+                                    y2={padding.top + chartHeight}
+                                    stroke={color}
+                                    strokeWidth="1"
+                                    strokeDasharray="2,2"
+                                />
+                                <rect
+                                    x={padding.left + (hoverIndex * chartWidth) / (data.length - 1) - 3}
+                                    y={padding.top + chartHeight - ((data[hoverIndex].value - stats.min) / stats.range) * chartHeight - 3}
+                                    width="6"
+                                    height="6"
+                                    fill={color}
+                                    stroke="white"
+                                    strokeWidth="1"
+                                />
+                            </>
+                        )}
+                    </svg>
+                )}
             </div>
 
             <div className="flex justify-between items-center text-[10px] font-bold text-gray-400 uppercase tracking-tight pt-2 border-t border-gray-100">
