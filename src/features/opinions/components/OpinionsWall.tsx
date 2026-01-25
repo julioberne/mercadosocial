@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { MessageCircle, ChevronDown, ChevronUp, Send } from 'lucide-react';
 import type { Opinion, CurrencyCode } from '../../../shared/types';
 import { formatCurrency, CURRENCY_OPTIONS, formatInputRealTime, unformatValue } from '../../../shared/lib/currency';
