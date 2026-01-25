@@ -105,6 +105,21 @@ export function useOffers(mainCurrency: CurrencyCode, productId: number = 1, rat
                             if (exists) return prev;
                             return [newOffer, ...prev];
                         });
+
+                        // Actualizar historial con la nueva oferta
+                        const inMain = (newOffer.amount / (rates[newOffer.cur] || 1)) * (rates[mainCurrency] || 1);
+                        setOfferHistory(prev => {
+                            const now = new Date();
+                            const time = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                            const date = now.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
+
+                            // Obtener máxima oferta actual del historial
+                            const currentMax = prev.length > 0 ? Math.max(...prev.map(p => p.value)) : 0;
+                            const newMax = Math.max(currentMax, inMain);
+
+                            const newPoint = { value: newMax, time, date };
+                            return [...prev.slice(-14), newPoint];
+                        });
                     } else if (payload.eventType === 'UPDATE') {
                         const updated = payload.new;
                         setOffers(prev => prev.map(o =>

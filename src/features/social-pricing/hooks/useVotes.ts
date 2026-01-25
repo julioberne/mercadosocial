@@ -97,6 +97,22 @@ export function useVotes(mainCurrency: CurrencyCode, productId: number = 1, rate
                         if (exists) return prev;
                         return [...prev, newVote];
                     });
+
+                    // Actualizar historial con el nuevo voto
+                    const inMain = (newVote.val / (rates[newVote.cur] || 1)) * (rates[mainCurrency] || 1);
+                    setVoteHistory(prev => {
+                        const now = newVote.timestamp;
+                        const time = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                        const date = now.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
+
+                        // Calcular nuevo promedio incluyendo todos los votos anteriores
+                        const allValues = prev.map(p => p.value);
+                        allValues.push(inMain);
+                        const newAvg = allValues.reduce((a, b) => a + b, 0) / allValues.length;
+
+                        const newPoint = { value: newAvg, time, date };
+                        return [...prev.slice(-14), newPoint];
+                    });
                 }
             )
             .subscribe((status) => {

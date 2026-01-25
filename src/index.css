@@ -230,3 +230,114 @@ body {
 .animate-slide-in-right {
   animation: slide-in-right 0.5s ease-out;
 }
+
+/* ===== MOBILE RESPONSIVE ===== */
+html,
+body {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* Mobile-first adjustments */
+@media (max-width: 768px) {
+
+  /* Prevent horizontal overflow */
+  body {
+    font-size: 14px;
+  }
+
+  /* Root container */
+  #root {
+    padding: 0.5rem;
+    max-width: 100%;
+  }
+
+  /* Reduce pixel effects on mobile */
+  .pixel-panel {
+    box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.15);
+    padding: 12px !important;
+  }
+
+  .pixel-button {
+    padding: 8px 12px;
+    font-size: 1rem;
+    box-shadow: 2px 2px 0px var(--text-primary);
+  }
+
+  /* Inputs more compact */
+  .pixel-input {
+    padding: 10px 12px;
+    font-size: 1rem;
+  }
+
+  /* Headers smaller */
+  h1 {
+    font-size: 1.5rem !important;
+  }
+
+  h2,
+  h3 {
+    font-size: 1.1rem !important;
+  }
+
+  /* Nav items wrap */
+  nav {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  nav a {
+    padding: 6px 10px !important;
+    font-size: 0.85rem !important;
+  }
+
+  /* Charts responsive */
+  .recharts-responsive-container {
+    min-height: 120px !important;
+  }
+
+  /* Grid adjustments */
+  .grid-cols-3 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Prevent text overflow */
+  p,
+  span,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  /* Fix fixed elements on mobile */
+  .fixed {
+    max-width: calc(100vw - 2rem);
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 480px) {
+  body {
+    font-size: 13px;
+  }
+
+  .pixel-panel {
+    margin: 0 -4px;
+    border-radius: 0;
+  }
+
+  h1 {
+    font-size: 1.25rem !important;
+  }
+
+  nav a {
+    padding: 4px 8px !important;
+    font-size: 0.75rem !important;
+    border-width: 2px !important;
+  }
+}
