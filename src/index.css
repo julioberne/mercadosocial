@@ -1,0 +1,232 @@
+@import url('https://fonts.googleapis.com/css2?family=VT323&family=Space+Mono:wght@400;700&display=swap');
+@import "tailwindcss";
+
+/* ===== PIXEL CRAFT DESIGN SYSTEM ===== */
+:root {
+  /* Pixel Core */
+  --pixel-border: 4px;
+  --pixel-shadow: 6px 6px 0px;
+
+  /* Light Mode - Parchment Theme */
+  --background: #fdfaf1;
+  --background-dots: #f0e6d2;
+  --surface: #ffffff;
+  --surface-muted: #f4f8f7;
+
+  /* Accent Colors (8-bit) */
+  --action-blue: #00a8f3;
+  --action-purple: #9c27b0;
+  --action-orange: #ff9800;
+  --heart-red: #ff0044;
+  --success-green: #4caf50;
+  --cool-teal: #008080;
+  --gold: #ffd700;
+
+  /* Text */
+  --text-primary: #000000;
+  --text-secondary: #000000;
+  --text-muted: #4b5563;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Space Mono', monospace;
+  /* More readable than pixel font for body */
+  background-color: var(--background);
+  background-image: radial-gradient(var(--background-dots) 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: var(--text-primary);
+  margin: 0;
+  padding: 0;
+}
+
+/* ===== PIXEL COMPONENTS ===== */
+.pixel-panel {
+  background-color: var(--surface);
+  border: 3px solid var(--text-primary);
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  /* Slight rounding for modern feel */
+  position: relative;
+}
+
+.pixel-panel-header {
+  background-color: var(--background-dots);
+  border-bottom: 3px solid var(--text-primary);
+}
+
+.pixel-button {
+  position: relative;
+  border: 3px solid var(--text-primary);
+  padding: 10px 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: 'VT323', monospace;
+  /* Keep pixel font for actionable items */
+  font-size: 1.25rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  border-radius: 2px;
+}
+
+.pixel-button:active {
+  transform: translate(2px, 2px);
+  box-shadow: none !important;
+}
+
+.pixel-button.btn-blue {
+  background-color: var(--action-blue);
+  box-shadow: 4px 4px 0px var(--text-primary);
+  color: white;
+}
+
+.pixel-button.btn-purple {
+  background-color: var(--action-purple);
+  box-shadow: 4px 4px 0px var(--text-primary);
+  color: white;
+}
+
+.pixel-button.btn-orange {
+  background-color: var(--action-orange);
+  box-shadow: 4px 4px 0px var(--text-primary);
+  color: black;
+}
+
+.pixel-button.btn-teal {
+  background-color: var(--cool-teal);
+  box-shadow: 4px 4px 0px var(--text-primary);
+  color: white;
+}
+
+.pixel-button.btn-white {
+  background-color: var(--surface);
+  box-shadow: 4px 4px 0px var(--text-primary);
+  color: var(--text-primary);
+}
+
+.pixel-input {
+  background: #ffffff;
+  border: 3px solid var(--text-primary);
+  color: #000000;
+  /* Force black text */
+  font-family: 'Space Mono', monospace;
+  /* Readable numbers */
+  font-size: 1.1rem;
+  font-weight: 700;
+  outline: none;
+  padding: 12px 16px;
+  border-radius: 4px;
+}
+
+.pixel-input:focus {
+  border-color: var(--action-blue);
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.1);
+}
+
+.pixel-bar {
+  height: 20px;
+  border: 2px solid var(--text-primary);
+  background: #e2e2e2;
+  position: relative;
+}
+
+.pixel-bar-inner {
+  height: 100%;
+  transition: width 0.3s steps(4);
+}
+
+/* ===== STAIRCASE CHART GRID ===== */
+.staircase-chart {
+  background-image:
+    linear-gradient(var(--background-dots) 1px, transparent 1px),
+    linear-gradient(90deg, var(--background-dots) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* ===== TABS ===== */
+.tab-active {
+  background-color: var(--surface);
+  border-bottom: 4px solid var(--surface);
+  margin-bottom: -4px;
+  z-index: 10;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes pulse-pixel {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pixel-pulse {
+  animation: pulse-pixel 1s steps(2) infinite;
+}
+
+@keyframes bounce-pixel {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.animate-pixel-bounce {
+  animation: bounce-pixel 0.5s steps(2) infinite;
+}
+
+/* ===== SCROLLBAR ===== */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: var(--background-dots);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--text-primary);
+}
+
+/* ===== UTILITIES ===== */
+.font-pixel {
+  font-family: 'VT323', monospace;
+}
+
+.font-mono-space {
+  font-family: 'Space Mono', monospace;
+}
+
+.text-shadow-pixel {
+  text-shadow: 2px 2px 0px var(--text-primary);
+}
+
+/* Error notification animation */
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.5s ease-out;
+}
