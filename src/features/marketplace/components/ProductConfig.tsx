@@ -27,22 +27,23 @@ export function ProductConfig({
     onSave,
 }: ProductConfigProps) {
     return (
-        <section className="pixel-panel p-6">
+        <section className="pixel-panel p-4 md:p-6">
             {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
-                <div className="flex items-center gap-3 font-bold text-2xl uppercase tracking-tight">
-                    <Settings className="text-[var(--action-blue)]" size={28} />
-                    CONFIGURACIÓN PRODUCTO
+            <div className="flex flex-col md:flex-row justify-between items-center gap-3 md:gap-4 mb-4 md:mb-6">
+                <div className="flex items-center gap-2 md:gap-3 font-bold text-base md:text-2xl uppercase tracking-tight">
+                    <Settings className="text-[var(--action-blue)]" size={24} />
+                    <span className="hidden md:inline">CONFIGURACIÓN PRODUCTO</span>
+                    <span className="md:hidden">CONFIG. PRODUCTO</span>
                 </div>
 
-                <div className="flex items-center gap-4">
+                <div className="flex flex-wrap justify-center items-center gap-2 md:gap-4">
                     {/* Currency Selector */}
-                    <div className="flex items-center gap-2 bg-[var(--background-dots)] px-3 py-2 border-4 border-black">
-                        <Globe size={18} />
+                    <div className="flex items-center gap-1.5 md:gap-2 bg-[var(--background-dots)] px-2 md:px-3 py-1.5 md:py-2 border-2 md:border-4 border-black">
+                        <Globe size={16} />
                         <select
                             value={mainCurrency}
                             onChange={(e) => onMainCurrencyChange(e.target.value as CurrencyCode)}
-                            className="bg-transparent text-sm font-bold uppercase outline-none cursor-pointer"
+                            className="bg-transparent text-xs md:text-sm font-bold uppercase outline-none cursor-pointer"
                         >
                             {CURRENCY_OPTIONS.map((opt) => (
                                 <option key={opt.code} value={opt.code}>
@@ -56,9 +57,10 @@ export function ProductConfig({
                     <PixelButton
                         variant="blue"
                         onClick={onToggleEdit}
-                        className="text-sm"
+                        className="text-xs md:text-sm px-2 md:px-4 py-1.5 md:py-2"
                     >
-                        {isEditing ? 'CERRAR' : 'EDITAR PRODUCTO'}
+                        <span className="hidden md:inline">{isEditing ? 'CERRAR' : 'EDITAR PRODUCTO'}</span>
+                        <span className="md:hidden">{isEditing ? 'CERRAR' : 'EDITAR'}</span>
                     </PixelButton>
                 </div>
             </div>

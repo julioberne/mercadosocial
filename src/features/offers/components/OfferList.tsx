@@ -26,10 +26,10 @@ export function OfferList({ offers, productStatus, onAcceptOffer }: OfferListPro
         });
     }, [offers]);
 
-    const visibleOffers = isExpanded 
-        ? sortedOffers.slice(0, EXPANDED_ITEMS) 
+    const visibleOffers = isExpanded
+        ? sortedOffers.slice(0, EXPANDED_ITEMS)
         : sortedOffers.slice(0, COLLAPSED_ITEMS);
-    
+
     const showToggle = sortedOffers.length > COLLAPSED_ITEMS;
     const remainingCount = sortedOffers.length - COLLAPSED_ITEMS;
 
@@ -38,7 +38,7 @@ export function OfferList({ offers, productStatus, onAcceptOffer }: OfferListPro
     }, []);
 
     return (
-        <section className="pixel-panel p-6 h-full overflow-hidden flex flex-col">
+        <section className="pixel-panel p-4 md:p-6 h-full overflow-hidden flex flex-col">
             <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-bold uppercase tracking-widest flex items-center gap-2">
                     <History size={18} className="text-[var(--action-blue)]" />
@@ -63,31 +63,29 @@ export function OfferList({ offers, productStatus, onAcceptOffer }: OfferListPro
                         {visibleOffers.map((offer) => (
                             <div
                                 key={offer.id}
-                                className={`p-4 border-4 border-black transition-all ${
-                                    offer.status === 'accepted'
+                                className={`p-4 border-4 border-black transition-all ${offer.status === 'accepted'
                                         ? 'bg-[var(--success-green)]/20 border-[var(--success-green)]'
                                         : offer.status === 'rejected'
                                             ? 'bg-slate-100 opacity-50'
                                             : 'bg-white hover:bg-[var(--background-dots)]'
-                                }`}
+                                    }`}
                             >
-                                <div className="flex flex-wrap justify-between items-center gap-3">
-                                    <div className="space-y-1 min-w-0 flex-1">
-                                        <span className="font-bold text-lg block truncate uppercase">
+                                <div className="flex justify-between items-center gap-2 md:gap-3">
+                                    <div className="space-y-0.5 min-w-0 flex-1">
+                                        <span className="font-bold text-sm md:text-lg block truncate uppercase">
                                             {offer.bidder}
                                         </span>
-                                        <p className="text-xs font-bold opacity-50 uppercase">
+                                        <p className="text-[10px] md:text-xs font-bold opacity-50 uppercase">
                                             {offer.date}
                                         </p>
                                     </div>
 
-                                    <div className="text-right shrink-0 flex flex-col items-end gap-1">
+                                    <div className="text-right shrink-0 flex flex-col items-end gap-0.5 md:gap-1">
                                         <p
-                                            className={`text-xl md:text-2xl font-bold tracking-tight leading-none ${
-                                                offer.status === 'accepted'
+                                            className={`text-base md:text-2xl font-bold tracking-tight leading-none ${offer.status === 'accepted'
                                                     ? 'text-[var(--success-green)]'
                                                     : 'text-[var(--action-blue)]'
-                                            }`}
+                                                }`}
                                         >
                                             {formatCurrency(offer.amount, offer.cur)}
                                         </p>
@@ -107,9 +105,10 @@ export function OfferList({ offers, productStatus, onAcceptOffer }: OfferListPro
                                             <PixelButton
                                                 variant="white"
                                                 onClick={() => onAcceptOffer(offer.id, offer.amount, offer.cur)}
-                                                className="text-[10px] px-2 py-1 border-[var(--success-green)] text-[var(--success-green)] hover:bg-[var(--success-green)] hover:text-white"
+                                                className="text-[8px] md:text-[10px] px-1.5 md:px-2 py-0.5 md:py-1 border-[var(--success-green)] text-[var(--success-green)] hover:bg-[var(--success-green)] hover:text-white whitespace-nowrap"
                                             >
-                                                ADJUDICAR VENTA
+                                                <span className="hidden md:inline">ADJUDICAR VENTA</span>
+                                                <span className="md:hidden">ADJUDICAR</span>
                                             </PixelButton>
                                         )}
                                     </div>

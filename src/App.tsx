@@ -133,17 +133,17 @@ function App() {
       <div className="max-w-[1400px] mx-auto space-y-8">
 
         {/* Header */}
-        <header className="pixel-panel p-4 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="bg-[var(--action-blue)] p-2 border-4 border-black">
-              <span className="text-white text-2xl">💎</span>
+        <header className="pixel-panel p-3 md:p-4 flex flex-col md:flex-row items-center justify-between gap-3 md:gap-4">
+          <div className="flex items-center gap-2 md:gap-3">
+            <div className="bg-[var(--action-blue)] p-1.5 md:p-2 border-3 md:border-4 border-black">
+              <span className="text-white text-xl md:text-2xl">💎</span>
             </div>
-            <h1 className="text-3xl font-bold tracking-tight uppercase">MERCADO SOCIAL</h1>
+            <h1 className="text-xl md:text-3xl font-bold tracking-tight uppercase">MERCADO SOCIAL</h1>
           </div>
-          <nav className="flex gap-2 text-lg">
-            <a className="px-4 py-2 bg-[var(--action-blue)] text-white border-4 border-black" href="#">MERCADO</a>
-            <a className="px-4 py-2 bg-[var(--background-dots)] border-4 border-black hover:bg-white transition-colors" href="#">ESTADÍSTICAS</a>
-            <a className="px-4 py-2 bg-[var(--background-dots)] border-4 border-black hover:bg-white transition-colors" href="#">COMUNIDAD</a>
+          <nav className="flex flex-wrap justify-center gap-1.5 md:gap-2 text-xs md:text-lg">
+            <a className="px-2 md:px-4 py-1.5 md:py-2 bg-[var(--action-blue)] text-white border-2 md:border-4 border-black whitespace-nowrap" href="#">MERCADO</a>
+            <a className="px-2 md:px-4 py-1.5 md:py-2 bg-[var(--background-dots)] border-2 md:border-4 border-black hover:bg-white transition-colors whitespace-nowrap" href="#">ESTADÍSTICAS</a>
+            <a className="px-2 md:px-4 py-1.5 md:py-2 bg-[var(--background-dots)] border-2 md:border-4 border-black hover:bg-white transition-colors whitespace-nowrap" href="#">COMUNIDAD</a>
           </nav>
         </header>
 
