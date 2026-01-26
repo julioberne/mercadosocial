@@ -12,6 +12,7 @@ import { useOffers } from './features/offers/hooks/useOffers';
 // Lib
 import { formatCurrency, formatInputRealTime, unformatValue } from './shared/lib/currency';
 import { validateTripleLimit } from './shared/lib/validators';
+import { supabase } from './shared/lib/supabase';
 
 // Analytics Hooks
 import { useExchangeRates } from './features/analytics/hooks/useExchangeRates';
@@ -29,12 +30,28 @@ import { MetricsGrid } from './features/analytics/components/MetricsGrid';
 import { EvolutionChart } from './features/analytics/components/EvolutionChart';
 import { OpinionsWall } from './features/opinions/components/OpinionsWall';
 import { useOpinions } from './features/opinions/hooks/useOpinions';
+import { ToastContainer, useToast, ConfirmModal } from './shared/ui';
 
 function App() {
   // Global State
   const [mainCurrency, setMainCurrency] = useState<CurrencyCode>('USD');
   const [errorMessage, setErrorMessage] = useState('');
   const [ownerPriceDisplay, setOwnerPriceDisplay] = useState('1.000');
+
+  // Simulation Mode State
+  const [isDemoMode, setIsDemoMode] = useState(false);
+
+  // Toast system
+  const { toasts, showToast, removeToast } = useToast();
+
+  // Modal state for adjudication confirmation
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    offerId: number;
+    amount: number;
+    currency: string;
+    bidder: string;
+  }>({ isOpen: false, offerId: 0, amount: 0, currency: 'USD', bidder: '' });
 
   const {
     product,
@@ -94,6 +111,50 @@ function App() {
     return { ownerPriceInMain, avgSentiment, maxOffer, avgOffer, marketPremium, convergenceIndex, inflationRisk };
   }, [product.ownerPrice, product.ownerCurrency, mainCurrency, voteStats, offerStats, rates]);
 
+  // Simulation Logic
+  useEffect(() => {
+    if (!isDemoMode) return;
+
+    // Simulate Votes randomly
+    const voteInterval = setInterval(() => {
+      // Random price around owner price (±40%)
+      const variation = (Math.random() * 0.8) - 0.4;
+      const base = product.ownerPrice;
+      const simulatedVote = base * (1 + variation);
+
+      addVote(simulatedVote, product.ownerCurrency);
+    }, 2500); // Every 2.5s
+
+    // Simulate Offers randomly
+    const offerInterval = setInterval(() => {
+      // Random offer around owner price (±30% but mostly lower)
+      const variation = (Math.random() * 0.6) - 0.4;
+      const base = product.ownerPrice;
+      const simulatedOffer = base * (1 + variation);
+
+      // Random bidder names
+      const bidders = ['Inversor_X', 'CryptoWhale', 'LocalBuyer', 'SmartFund', 'AlphaTrader'];
+      const randomBidder = bidders[Math.floor(Math.random() * bidders.length)];
+
+      addOffer(`${randomBidder}_${Math.floor(Math.random() * 100)}`, simulatedOffer, product.ownerCurrency);
+    }, 4000); // Every 4s
+
+    return () => {
+      clearInterval(voteInterval);
+      clearInterval(offerInterval);
+    };
+  }, [isDemoMode, product.ownerPrice, product.ownerCurrency, addVote, addOffer]);
+
+  // Toggle Demo Mode
+  const toggleDemoMode = () => {
+    setIsDemoMode(!isDemoMode);
+    if (!isDemoMode) {
+      showToast('🤖 MODO SIMULACIÓN ACTIVADO: Generando actividad de mercado...', 'success');
+    } else {
+      showToast('🛑 Simulación detenida', 'success');
+    }
+  };
+
   // Clear error message after timeout
   useEffect(() => {
     if (errorMessage) {
@@ -121,11 +182,79 @@ function App() {
 
     // Guardar nuevo precio en historial persistente (DB)
     await addPricePoint(cleanPrice, tempProduct.ownerCurrency);
+
+    showToast('Producto actualizado correctamente', 'success');
   };
 
-  const handleAcceptOffer = (offerId: number, amount: number, currency: string) => {
-    acceptOffer(offerId);
-    sellProduct(amount, currency as CurrencyCode);
+  // Open confirmation modal for adjudication
+  const handleRequestAdjudication = (offerId: number, amount: number, currency: string) => {
+    const offer = offers.find(o => o.id === offerId);
+    setConfirmModal({
+      isOpen: true,
+      offerId,
+      amount,
+      currency,
+      bidder: offer?.bidder || 'Comprador',
+    });
+  };
+
+  // Confirm adjudication
+  const handleConfirmAdjudication = () => {
+    acceptOffer(confirmModal.offerId);
+    sellProduct(confirmModal.amount, confirmModal.currency as CurrencyCode);
+    setConfirmModal({ isOpen: false, offerId: 0, amount: 0, currency: 'USD', bidder: '' });
+    showToast('¡Venta adjudicada exitosamente!', 'success');
+  };
+
+  // Enhanced vote handler with feedback
+  const handleVote = async (val: number, cur: CurrencyCode) => {
+    await addVote(val, cur);
+    showToast('Voto registrado correctamente', 'success');
+  };
+
+  // Enhanced offer handler with feedback
+  const handleOffer = async (bidder: string, amount: number, cur: CurrencyCode) => {
+    await addOffer(bidder, amount, cur);
+    showToast('Oferta enviada correctamente', 'success');
+  };
+
+  // Enhanced opinion handler with feedback
+  const handleOpinion = async (name: string, content: string, value: number, currency: CurrencyCode) => {
+    await addOpinion(name, content, value, currency);
+    showToast('Opinión publicada', 'success');
+  };
+
+  // Reset all data (votes, offers) for testing
+  const handleResetData = async () => {
+    if (!confirm('¿Eliminar TODOS los votos y ofertas? Esta acción no se puede deshacer.')) return;
+
+    setIsDemoMode(false); // Stop simulation
+
+    try {
+      // Delete all votes for product 1
+      const { error: votesError } = await supabase
+        .from('votes')
+        .delete()
+        .eq('product_id', 1);
+
+      if (votesError) throw votesError;
+
+      // Delete all offers for product 1
+      const { error: offersError } = await supabase
+        .from('offers')
+        .delete()
+        .eq('product_id', 1);
+
+      if (offersError) throw offersError;
+
+      // Reload data
+      await Promise.all([reloadVotes(), reloadOffers()]);
+
+      showToast('🗑️ Datos reiniciados correctamente', 'success');
+    } catch (error) {
+      console.error('Error resetting data:', error);
+      showToast('Error al reiniciar datos', 'error');
+    }
   };
 
   return (
@@ -140,13 +269,34 @@ function App() {
             </div>
             <h1 className="text-xl md:text-3xl font-bold tracking-tight uppercase">MERCADO SOCIAL</h1>
           </div>
-          <nav className="flex flex-wrap justify-center gap-1.5 md:gap-2 text-xs md:text-lg">
-            <a className="px-2 md:px-4 py-1.5 md:py-2 bg-[var(--action-blue)] text-white border-2 md:border-4 border-black whitespace-nowrap" href="#">MERCADO</a>
-            <a className="px-2 md:px-4 py-1.5 md:py-2 bg-[var(--background-dots)] border-2 md:border-4 border-black hover:bg-white transition-colors whitespace-nowrap" href="#">ESTADÍSTICAS</a>
-            <a className="px-2 md:px-4 py-1.5 md:py-2 bg-[var(--background-dots)] border-2 md:border-4 border-black hover:bg-white transition-colors whitespace-nowrap" href="#">COMUNIDAD</a>
-          </nav>
-        </header>
 
+          <div className="flex flex-wrap items-center justify-center gap-2 md:gap-4">
+            {/* Simulation Button */}
+            <button
+              onClick={toggleDemoMode}
+              className={`px-3 py-1.5 md:px-4 md:py-2 border-2 md:border-4 border-black font-bold uppercase text-xs md:text-sm animate-pulse-slow transition-all ${isDemoMode
+                ? 'bg-red-500 text-white hover:bg-red-600'
+                : 'bg-emerald-400 text-black hover:bg-emerald-500'
+                }`}
+            >
+              {isDemoMode ? '⏹ Detener' : '▶ Simular'}
+            </button>
+
+            {/* Reset Button */}
+            <button
+              onClick={handleResetData}
+              className="px-3 py-1.5 md:px-4 md:py-2 border-2 md:border-4 border-black font-bold uppercase text-xs md:text-sm bg-gray-200 text-black hover:bg-red-100 hover:border-red-500 transition-all"
+            >
+              🗑️ Reset
+            </button>
+
+            <nav className="flex flex-wrap justify-center gap-1.5 md:gap-2 text-xs md:text-lg">
+              <a className="px-2 md:px-4 py-1.5 md:py-2 bg-[var(--action-blue)] text-white border-2 md:border-4 border-black whitespace-nowrap" href="#">MERCADO</a>
+              <a className="px-2 md:px-4 py-1.5 md:py-2 bg-[var(--background-dots)] border-2 md:border-4 border-black hover:bg-white transition-colors whitespace-nowrap" href="#">ESTADÍSTICAS</a>
+              <a className="px-2 md:px-4 py-1.5 md:py-2 bg-[var(--background-dots)] border-2 md:border-4 border-black hover:bg-white transition-colors whitespace-nowrap" href="#">COMUNIDAD</a>
+            </nav>
+          </div>
+        </header>
 
         {/* Error Notification */}
         {errorMessage && (
@@ -200,17 +350,19 @@ function App() {
         <GapAnalysis stats={stats} mainCurrency={mainCurrency} />
 
         {/* Evolution Charts */}
-        <section className="pixel-panel p-8 bg-white text-black">
-          <div className="flex items-center gap-4 mb-8">
-            <div className="bg-[var(--action-blue)]/10 p-3 border-4 border-black">
-              <LineChart size={28} className="text-[var(--action-blue)]" />
+        <section className="pixel-panel p-4 md:p-8 bg-white text-black">
+          <div className="flex items-center gap-2 md:gap-4 mb-4 md:mb-8">
+            <div className="bg-[var(--action-blue)]/10 p-2 md:p-3 border-2 md:border-4 border-black">
+              <LineChart size={24} className="text-[var(--action-blue)]" />
             </div>
             <div>
-              <h3 className="text-2xl font-bold uppercase tracking-tight text-black">
-                DINÁMICA DE EVOLUCIÓN - MULTI-CHART TRACKING
+              <h3 className="text-base md:text-2xl font-bold uppercase tracking-tight text-black">
+                <span className="hidden md:inline">DINÁMICA DE EVOLUCIÓN - MULTI-CHART TRACKING</span>
+                <span className="md:hidden">EVOLUCIÓN DE PRECIOS</span>
               </h3>
-              <p className="text-sm font-bold text-gray-500 uppercase">
-                Sincronización en tiempo real de tendencias de valor ({mainCurrency})
+              <p className="text-xs md:text-sm font-bold text-gray-500 uppercase">
+                <span className="hidden md:inline">Sincronización en tiempo real de tendencias de valor ({mainCurrency})</span>
+                <span className="md:hidden">Tiempo real ({mainCurrency})</span>
               </p>
             </div>
           </div>
@@ -244,14 +396,14 @@ function App() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <VoteInput
             mainCurrency={mainCurrency}
-            onVote={addVote}
+            onVote={handleVote}
             onValidationError={setErrorMessage}
             validateFn={validateAmount}
           />
           <BidForm
             productStatus={product.status}
             mainCurrency={mainCurrency}
-            onBid={addOffer}
+            onBid={handleOffer}
             onValidationError={setErrorMessage}
             validateFn={validateAmount}
           />
@@ -263,7 +415,7 @@ function App() {
             <OfferList
               offers={offers}
               productStatus={product.status}
-              onAcceptOffer={handleAcceptOffer}
+              onAcceptOffer={handleRequestAdjudication}
             />
           </div>
           <SentimentWall votes={votes} />
@@ -272,7 +424,7 @@ function App() {
         {/* Opinions Section */}
         <OpinionsWall
           opinions={opinions}
-          onAddOpinion={addOpinion}
+          onAddOpinion={handleOpinion}
           mainCurrency={mainCurrency}
           ownerPrice={product.ownerPrice}
           ownerCurrency={product.ownerCurrency}
@@ -295,14 +447,15 @@ function App() {
         )}
 
         {/* Footer */}
-        <footer className="pixel-panel p-6 bg-[var(--background-dots)]">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-2 opacity-60 text-xl font-bold uppercase">
-              💎 MERCADO SOCIAL © 2026 • RED DE VALORACIÓN SOCIAL
+        <footer className="pixel-panel p-4 md:p-6 bg-[var(--background-dots)]">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-3 md:gap-4">
+            <div className="flex items-center gap-2 opacity-60 text-sm md:text-xl font-bold uppercase text-center">
+              <span className="hidden md:inline">💎 MERCADO SOCIAL © 2026 • RED DE VALORACIÓN SOCIAL</span>
+              <span className="md:hidden">💎 MERCADO SOCIAL © 2026</span>
             </div>
-            <div className="flex flex-wrap gap-6 text-lg uppercase font-bold">
-              <a className="hover:text-[var(--action-blue)]" href="#">DOCUMENTACIÓN API</a>
-              <a className="hover:text-[var(--action-blue)]" href="#">REGLAS DEL MERCADO</a>
+            <div className="flex flex-wrap justify-center gap-3 md:gap-6 text-xs md:text-lg uppercase font-bold">
+              <a className="hover:text-[var(--action-blue)]" href="#">API</a>
+              <a className="hover:text-[var(--action-blue)]" href="#">REGLAS</a>
               <a className="hover:text-[var(--action-blue)]" href="#">PRIVACIDAD</a>
               <a className="hover:text-[var(--action-blue)]" href="#">SOPORTE</a>
             </div>
@@ -310,6 +463,21 @@ function App() {
         </footer>
 
       </div>
+
+      {/* Toast Notifications */}
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
+
+      {/* Confirmation Modal for Adjudication */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title="CONFIRMAR ADJUDICACIÓN"
+        message={`¿Estás seguro de adjudicar la venta a "${confirmModal.bidder}" por ${formatCurrency(confirmModal.amount, confirmModal.currency as CurrencyCode)}? Esta acción no se puede deshacer.`}
+        confirmText="ADJUDICAR"
+        cancelText="CANCELAR"
+        variant="warning"
+        onConfirm={handleConfirmAdjudication}
+        onCancel={() => setConfirmModal({ isOpen: false, offerId: 0, amount: 0, currency: 'USD', bidder: '' })}
+      />
     </div>
   );
 }

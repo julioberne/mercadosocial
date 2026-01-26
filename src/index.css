@@ -231,6 +231,23 @@ body {
   animation: slide-in-right 0.5s ease-out;
 }
 
+/* Scale animation for modals */
+@keyframes scale-in {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-scale-in {
+  animation: scale-in 0.2s ease-out;
+}
+
 /* ===== MOBILE RESPONSIVE ===== */
 html,
 body {
