@@ -21,6 +21,7 @@ import { usePriceHistory } from './features/analytics/hooks/usePriceHistory';
 // Components
 import { ProductConfig } from './features/marketplace/components/ProductConfig';
 import { ProductHero } from './features/marketplace/components/ProductHero';
+import { ProductContent } from './features/marketplace/components/ProductContent';
 import { VoteInput } from './features/social-pricing/components/VoteInput';
 import { SentimentWall } from './features/social-pricing/components/SentimentWall';
 import { BidForm } from './features/offers/components/BidForm';
@@ -338,6 +339,9 @@ function App() {
           onSelectImage={selectImage}
           onToggleLock={toggleLock}
         />
+
+        {/* @ProductContent - Contenido extendido del producto */}
+        <ProductContent product={product} />
 
         {/* Metrics Grid */}
         <MetricsGrid

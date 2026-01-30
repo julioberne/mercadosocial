@@ -67,6 +67,23 @@ VITE_SUPABASE_URL=tu_url_de_supabase
 VITE_SUPABASE_ANON_KEY=tu_anon_key
 ```
 
+## 🚀 Infraestructura y Deploy
+
+### URLs de Producción
+
+| Servicio | URL |
+|----------|-----|
+| **Dokploy Dashboard** | http://68.178.167.234:3000 |
+| **Proyecto Mercado Social** | [Panel Dokploy](http://68.178.167.234:3000/dashboard/project/WFlbSPedC4z8hFbK72I7J/environment/XkbCE79GqgTnzvgbDBSET/services/compose/ZXX3LVrjWjFpTUEakEQcQ) |
+| **Supabase** | https://supabase.colombiabien.com |
+
+### Workflow de Deploy
+
+1. Desarrollar y probar en local (`npm run dev`)
+2. Confirmar cambios con el usuario
+3. Push a GitHub (cuando se autorice)
+4. Dokploy detecta cambios y despliega automáticamente
+
 ## 📝 Licencia
 
 MIT License

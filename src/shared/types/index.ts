@@ -3,6 +3,7 @@ export interface Product {
     id: number;
     name: string;
     description: string;
+    content?: string;  // Contenido extendido/rich text del producto
     ownerPrice: number;
     ownerCurrency: CurrencyCode;
     status: ProductStatus;
@@ -85,7 +86,48 @@ export const SAMPLE_PRODUCTS: Product[] = [
     {
         id: 1,
         name: "Consultoría Estratégica AI (Mensual)",
-        description: "Servicio premium de optimización de flujos de trabajo mediante inteligencia artificial generativa. Este servicio incluye análisis de datos, implementación de modelos de lenguaje y automatización de procesos críticos para escalar su negocio al siguiente nivel tecnológico. Se entrega reporte mensual de impacto y soporte 24/7.",
+        description: "Servicio premium de optimización de flujos de trabajo mediante inteligencia artificial generativa.",
+        content: `# Consultoría de Inteligencia Artificial
+
+Este servicio **premium** te ayudará a transformar tu negocio con las últimas tecnologías de IA.
+
+## Características Principales
+
+- **Análisis de datos** avanzado con machine learning
+- Implementación de *modelos de lenguaje* personalizados
+- Automatización de procesos críticos
+- Soporte técnico ==24/7==
+
+## ¿Qué Incluye?
+
+1. Diagnóstico inicial de tu empresa
+2. Desarrollo de estrategia personalizada
+3. Implementación y seguimiento
+4. Capacitación a tu equipo
+
+### Especificaciones Técnicas
+
+Código de servicio: \`SERV-AI-001\`
+Duración: \`30 días\`
+Modalidad: \`Presencial\` + \`Virtual\`
+
+> "La inteligencia artificial no reemplaza humanos, los potencia" — CEO Tech Master
+
+---
+
+## Términos del Servicio
+
+El precio base es de \`$1.000 USD\` mensuales. Se factura al inicio de cada periodo.
+
+[x] Consulta inicial incluida
+[x] Reportes semanales
+[ ] Soporte fines de semana (opcional)
+
+Para más información contacta a: \`ai@techmaster.com\`
+
+~~Precio anterior: $1.500 USD~~ **Ahora con 33% de descuento**
+
+Usa el código __PROMO2024__ para beneficios adicionales.`,
         ownerPrice: 1000,
         ownerCurrency: 'USD',
         status: 'open',

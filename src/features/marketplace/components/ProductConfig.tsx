@@ -1,7 +1,14 @@
-import { Settings, Globe, Image as ImageIcon, Play } from 'lucide-react';
+import { Settings, Globe, Play, Upload, Type, FileText, Info } from 'lucide-react';
 import type { Product, CurrencyCode } from '../../../shared/types';
 import { CURRENCY_OPTIONS } from '../../../shared/lib/currency';
-import { PixelButton, PixelInput, PixelSelect, PixelTextarea } from '../../../shared/ui';
+import { PixelButton, PixelInput, PixelSelect, PixelTextarea, ImageUploader, RichTextEditor } from '../../../shared/ui';
+
+// Límites de caracteres
+const LIMITS = {
+    title: 100,
+    description: 200,
+    content: 2500,
+};
 
 interface ProductConfigProps {
     isEditing: boolean;
@@ -13,6 +20,21 @@ interface ProductConfigProps {
     onTempProductChange: (updates: Partial<Product>) => void;
     onOwnerPriceChange: (value: string) => void;
     onSave: (e: React.FormEvent) => void;
+}
+
+// Componente para mostrar contador de caracteres
+function CharCounter({ current, max }: { current: number; max: number }) {
+    const percentage = (current / max) * 100;
+    return (
+        <span className={`font-bold text-xs ${percentage >= 100
+            ? 'text-red-500'
+            : percentage >= 90
+                ? 'text-orange-500'
+                : 'text-gray-500'
+            }`}>
+            {current}/{max}
+        </span>
+    );
 }
 
 export function ProductConfig({
@@ -67,74 +89,142 @@ export function ProductConfig({
 
             {/* Edit Form */}
             {isEditing && (
-                <form onSubmit={onSave} className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-4 border-t-4 border-[var(--background-dots)]">
-                    <div className="space-y-4">
-                        <PixelInput
-                            type="text"
-                            placeholder="NOMBRE DEL PRODUCTO"
-                            value={tempProduct.name}
-                            onChange={(e) => onTempProductChange({ name: e.target.value })}
-                            fullWidth
-                            required
-                        />
+                <form onSubmit={onSave} className="space-y-6 pt-4 border-t-4 border-[var(--background-dots)]">
 
-                        <PixelTextarea
-                            placeholder="DESCRIPCIÓN DETALLADA..."
-                            value={tempProduct.description}
-                            onChange={(e) => onTempProductChange({ description: e.target.value })}
-                            className="w-full h-32"
-                            required
-                        />
+                    {/* Grid de 2 columnas */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-                        <div className="grid grid-cols-3 gap-2">
-                            <PixelSelect
-                                value={tempProduct.ownerCurrency}
-                                onChange={(e) => onTempProductChange({ ownerCurrency: e.target.value as CurrencyCode })}
-                                options={CURRENCY_OPTIONS.map((o) => ({ value: o.code, label: o.code }))}
-                            />
-                            <PixelInput
-                                type="text"
-                                value={ownerPriceDisplay}
-                                onChange={(e) => onOwnerPriceChange(e.target.value)}
-                                className="col-span-2 text-right"
-                                placeholder="PRECIO"
-                                required
-                            />
+                        {/* Columna Izquierda: Info básica */}
+                        <div className="space-y-5">
+
+                            {/* TÍTULO */}
+                            <div className="space-y-2">
+                                <label className="flex items-center gap-2 font-bold text-sm uppercase text-gray-700">
+                                    <Type size={16} className="text-[var(--action-blue)]" />
+                                    Título del Producto
+                                </label>
+                                <PixelInput
+                                    type="text"
+                                    placeholder="Nombre del producto o servicio..."
+                                    value={tempProduct.name}
+                                    onChange={(e) => {
+                                        const text = e.target.value.slice(0, LIMITS.title);
+                                        onTempProductChange({ name: text });
+                                    }}
+                                    maxLength={LIMITS.title}
+                                    fullWidth
+                                    required
+                                />
+                                <div className="flex justify-end">
+                                    <CharCounter current={tempProduct.name.length} max={LIMITS.title} />
+                                </div>
+                            </div>
+
+                            {/* DESCRIPCIÓN */}
+                            <div className="space-y-2">
+                                <label className="flex items-center gap-2 font-bold text-sm uppercase text-gray-700">
+                                    <FileText size={16} className="text-[var(--action-orange)]" />
+                                    Descripción Corta
+                                </label>
+                                <PixelTextarea
+                                    placeholder="Resumen breve del producto (se muestra en la vista previa)..."
+                                    value={tempProduct.description}
+                                    onChange={(e) => {
+                                        const text = e.target.value.slice(0, LIMITS.description);
+                                        onTempProductChange({ description: text });
+                                    }}
+                                    maxLength={LIMITS.description}
+                                    className="w-full h-20"
+                                    required
+                                />
+                                <div className="flex justify-between items-center">
+                                    <span className="text-xs text-gray-500">Vista previa del producto</span>
+                                    <CharCounter current={tempProduct.description.length} max={LIMITS.description} />
+                                </div>
+                            </div>
+
+                            {/* PRECIO */}
+                            <div className="space-y-2">
+                                <label className="font-bold text-sm uppercase text-gray-700">
+                                    💰 Precio Base
+                                </label>
+                                <div className="grid grid-cols-3 gap-2">
+                                    <PixelSelect
+                                        value={tempProduct.ownerCurrency}
+                                        onChange={(e) => onTempProductChange({ ownerCurrency: e.target.value as CurrencyCode })}
+                                        options={CURRENCY_OPTIONS.map((o) => ({ value: o.code, label: o.code }))}
+                                    />
+                                    <PixelInput
+                                        type="text"
+                                        value={ownerPriceDisplay}
+                                        onChange={(e) => onOwnerPriceChange(e.target.value)}
+                                        className="col-span-2 text-right"
+                                        placeholder="0"
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            {/* VIDEO */}
+                            <div className="space-y-2">
+                                <label className="flex items-center gap-2 font-bold text-sm uppercase text-gray-700">
+                                    <Play size={16} className="text-red-500" />
+                                    Video (YouTube)
+                                </label>
+                                <PixelInput
+                                    type="text"
+                                    placeholder="https://youtube.com/watch?v=..."
+                                    value={tempProduct.videoUrl}
+                                    onChange={(e) => onTempProductChange({ videoUrl: e.target.value })}
+                                    fullWidth
+                                />
+                            </div>
+                        </div>
+
+                        {/* Columna Derecha: Media */}
+                        <div className="space-y-5">
+                            {/* @ProductMediaUploader */}
+                            <div className="space-y-2">
+                                <label className="flex items-center gap-2 font-bold text-sm uppercase text-gray-700">
+                                    <Upload size={16} className="text-[var(--success-green)]" />
+                                    Media del Producto
+                                </label>
+                                <ImageUploader
+                                    images={tempProduct.images || []}
+                                    onImagesChange={(images) => onTempProductChange({ images })}
+                                    maxFiles={6}
+                                    maxSizeMB={10}
+                                />
+                            </div>
                         </div>
                     </div>
 
-                    <div className="space-y-4">
-                        <div className="relative">
-                            <ImageIcon className="absolute left-3 top-3 opacity-40" size={20} />
-                            <PixelTextarea
-                                placeholder="URLs DE IMÁGENES (separadas por coma)"
-                                value={tempProduct.images?.join(', ')}
-                                onChange={(e) =>
-                                    onTempProductChange({
-                                        images: e.target.value
-                                            .split(',')
-                                            .filter((s) => s.trim() !== '')
-                                            .map((s) => s.trim()),
-                                    })
-                                }
-                                className="w-full h-24 pl-10"
-                            />
-                        </div>
+                    {/* INFORMACIÓN DEL PRODUCTO - Editor con barra de herramientas */}
+                    <div className="space-y-2 pt-4 border-t-2 border-gray-200">
+                        <label className="flex items-center gap-2 font-bold text-sm uppercase text-gray-700">
+                            <Info size={16} className="text-purple-600" />
+                            Información del Producto
+                            <span className="text-xs font-normal text-gray-500 ml-2">(usa los botones para dar formato)</span>
+                        </label>
+                        <RichTextEditor
+                            value={tempProduct.content || ''}
+                            onChange={(content) => onTempProductChange({ content })}
+                            maxLength={LIMITS.content}
+                            placeholder="Escribe aquí la información detallada del producto...
 
-                        <div className="relative">
-                            <Play className="absolute left-3 top-3 opacity-40" size={20} />
-                            <PixelInput
-                                type="text"
-                                placeholder="URL DE VIDEO (YouTube)"
-                                value={tempProduct.videoUrl}
-                                onChange={(e) => onTempProductChange({ videoUrl: e.target.value })}
-                                fullWidth
-                                className="pl-10"
-                            />
-                        </div>
+Usa los botones de la barra de herramientas para dar formato:
+• Títulos y subtítulos
+• Negrita, cursiva, subrayado
+• Listas con viñetas o numeradas
+• Citas destacadas
+• Enlaces y más..."
+                        />
+                    </div>
 
-                        <PixelButton type="submit" variant="blue" fullWidth>
-                            ACTUALIZAR MERCADO SOCIAL
+                    {/* Botón Submit */}
+                    <div className="pt-4">
+                        <PixelButton type="submit" variant="blue" fullWidth className="py-4 text-base">
+                            ✓ GUARDAR CAMBIOS
                         </PixelButton>
                     </div>
                 </form>

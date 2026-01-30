@@ -138,7 +138,7 @@ export function OpinionsWall({ opinions, onAddOpinion, mainCurrency, ownerPrice,
     };
 
     return (
-        <section className="pixel-panel p-6">
+        <section id="opinions-section" data-section="opinions" className="pixel-panel p-6">
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
                 <h3 className="text-sm font-bold uppercase tracking-widest flex items-center gap-2">
