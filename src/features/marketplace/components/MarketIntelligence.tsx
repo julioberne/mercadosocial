@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Lock, TrendingUp, MapPin, Activity, BarChart3, Eye } from 'lucide-react';
 
 interface MarketIntelligenceProps {

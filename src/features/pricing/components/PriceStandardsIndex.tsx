@@ -163,7 +163,7 @@ export function PriceStandardsIndex({ currentProduct, currentProductStats }: Pri
         {
             id: 0,
             name: currentProduct.name,
-            category: currentProduct.category || 'General',
+            category: 'General',
             subcategory: '',
             icon: 'ai' as const,
             samples: currentProductStats?.samples || 1,
