@@ -48,25 +48,25 @@ export function ProductHero({
             <div className="lg:col-span-5 p-6 md:p-8 flex flex-col justify-between bg-white relative">
                 <div className="space-y-4">
                     {/* Seller Badge & Status */}
-                    <div className="flex justify-between items-start">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 md:w-12 md:h-12 bg-gray-200 border-2 border-black overflow-hidden rounded-full">
+                    <div className="flex flex-wrap justify-between items-start gap-2">
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                            <div className="w-8 h-8 md:w-12 md:h-12 bg-gray-200 border-2 border-black overflow-hidden rounded-full shrink-0">
                                 <img src={product.seller.avatar} alt={product.seller.name} className="w-full h-full object-cover" />
                             </div>
-                            <div>
-                                <p className="text-[10px] md:text-xs font-bold text-gray-500 uppercase tracking-wider">{product.seller.level}</p>
+                            <div className="min-w-0 flex-1">
+                                <p className="text-[8px] md:text-xs font-bold text-gray-500 uppercase tracking-wide truncate">{product.seller.level}</p>
                                 <div className="flex items-center gap-1">
-                                    <span className="font-bold text-sm md:text-lg">{product.seller.name}</span>
-                                    {product.seller.verified && <CheckCircle2 size={14} className="text-[var(--action-blue)]" />}
+                                    <span className="font-bold text-xs md:text-lg truncate max-w-[100px] md:max-w-none">{product.seller.name}</span>
+                                    {product.seller.verified && <CheckCircle2 size={12} className="text-[var(--action-blue)] shrink-0" />}
                                 </div>
                             </div>
                         </div>
 
-                        <div className="flex flex-col items-end gap-2">
-                            <span className="bg-[var(--action-blue)] text-white px-2 md:px-3 py-1 border-2 border-black text-[10px] md:text-xs font-bold uppercase tracking-widest text-center min-w-[60px] md:min-w-[80px]">
-                                {mainCurrency} VISTA
+                        <div className="flex flex-col items-end gap-1 shrink-0">
+                            <span className="bg-[var(--action-blue)] text-white px-1.5 md:px-3 py-0.5 md:py-1 border-2 border-black text-[8px] md:text-xs font-bold uppercase tracking-wide">
+                                {mainCurrency}
                             </span>
-                            <span className="text-[9px] md:text-[10px] font-bold opacity-60 uppercase tracking-widest">
+                            <span className="text-[8px] md:text-[10px] font-bold opacity-60 uppercase">
                                 {product.status === 'open' && '🟢 ABIERTO'}
                                 {product.status === 'locked' && '🔒 FIJADO'}
                                 {product.status === 'sold' && '✅ VENDIDO'}
@@ -127,9 +127,9 @@ export function ProductHero({
                         <button
                             onClick={onToggleLock}
                             className="pixel-button btn-white p-2 md:p-3 shadow-[4px_4px_0px_black] shrink-0 ml-4 hover:scale-105"
-                            title={product.status === 'open' ? 'Bloquear precio' : 'Desbloquear precio'}
+                            title={product.status === 'locked' ? 'Desbloquear precio' : 'Bloquear precio'}
                         >
-                            {product.status === 'open' ? <Lock size={20} /> : <Unlock size={20} />}
+                            {product.status === 'locked' ? <Lock size={20} /> : <Unlock size={20} />}
                         </button>
                     </div>
 

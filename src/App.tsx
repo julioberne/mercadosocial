@@ -22,6 +22,7 @@ import { usePriceHistory } from './features/analytics/hooks/usePriceHistory';
 import { ProductConfig } from './features/marketplace/components/ProductConfig';
 import { ProductHero } from './features/marketplace/components/ProductHero';
 import { ProductContent } from './features/marketplace/components/ProductContent';
+import { MarketIntelligence } from './features/marketplace/components/MarketIntelligence';
 import { VoteInput } from './features/social-pricing/components/VoteInput';
 import { SentimentWall } from './features/social-pricing/components/SentimentWall';
 import { BidForm } from './features/offers/components/BidForm';
@@ -29,9 +30,12 @@ import { OfferList } from './features/offers/components/OfferList';
 import { GapAnalysis } from './features/analytics/components/GapAnalysis';
 import { MetricsGrid } from './features/analytics/components/MetricsGrid';
 import { EvolutionChart } from './features/analytics/components/EvolutionChart';
+import { SEOSocialProof } from './features/analytics/components/SEOSocialProof';
 import { OpinionsWall } from './features/opinions/components/OpinionsWall';
 import { useOpinions } from './features/opinions/hooks/useOpinions';
 import { ToastContainer, useToast, ConfirmModal } from './shared/ui';
+import { SocialUrgency, TrustBadges, StickyCta } from './features/marketing/components';
+import { PriceStandardsIndex } from './features/pricing/components';
 
 function App() {
   // Global State
@@ -343,6 +347,35 @@ function App() {
         {/* @ProductContent - Contenido extendido del producto */}
         <ProductContent product={product} />
 
+        {/* Marketing: Trust Badges */}
+        <div className="px-4 md:px-0">
+          <TrustBadges
+            totalVotes={votes.length}
+            totalOffers={offers.length}
+            isVerifiedSeller={product.seller.verified}
+          />
+        </div>
+
+        {/* Marketing: Social Urgency (FOMO) */}
+        <div className="px-4 md:px-0">
+          <SocialUrgency
+            totalVotes={votes.length}
+            totalOffers={offers.length}
+          />
+        </div>
+
+        {/* SEO Social Proof - Contenido dinámico indexable por Google */}
+        <SEOSocialProof
+          product={product}
+          totalVotes={votes.length}
+          totalOffers={offers.length}
+          socialAverage={stats.avgSentiment}
+          mainCurrency={mainCurrency}
+        />
+
+        {/* Data Paywall - Market Intelligence */}
+        <MarketIntelligence productId={product.id} productName={product.name} />
+
         {/* Metrics Grid */}
         <MetricsGrid
           stats={stats}
@@ -435,6 +468,16 @@ function App() {
           rates={rates}
         />
 
+        {/* Índice de Precios Estándar - Estandarización por Taxonomía */}
+        <PriceStandardsIndex
+          currentProduct={product}
+          currentProductStats={{
+            samples: votes.length,
+            confidence: Math.min(95, 70 + Math.floor(votes.length / 2)),
+            trend: stats.avgSentiment >= product.ownerPrice ? 'up' : stats.avgSentiment < product.ownerPrice * 0.9 ? 'down' : 'stable'
+          }}
+        />
+
         {/* Success Banner */}
         {product.status === 'sold' && (
           <div className="pixel-panel p-12 bg-gradient-to-br from-[var(--action-blue)] to-indigo-900 text-white text-center border-b-8 border-[var(--success-green)] animate-slide-in-right">
@@ -481,6 +524,15 @@ function App() {
         variant="warning"
         onConfirm={handleConfirmAdjudication}
         onCancel={() => setConfirmModal({ isOpen: false, offerId: 0, amount: 0, currency: 'USD', bidder: '' })}
+      />
+
+      {/* Marketing: Sticky CTA flotante */}
+      <StickyCta
+        onCtaClick={() => {
+          // Scroll al formulario de oferta
+          document.querySelector('[data-section="bid-form"]')?.scrollIntoView({ behavior: 'smooth' });
+        }}
+        ctaText="PROPONER MI PRECIO JUSTO"
       />
     </div>
   );

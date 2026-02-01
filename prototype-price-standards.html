@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Módulo de Estandarización de Precios - Mercado Social</title>
+    <style>
+        /* ===== RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.5;
+            padding: 24px;
+        }
+
+        /* ===== CONTENEDOR PRINCIPAL ===== */
+        .price-standards-module {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border: 4px solid black;
+            box-shadow: 8px 8px 0px black;
+        }
+
+        /* ===== HEADER DEL MÓDULO ===== */
+        .module-header {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            padding: 24px;
+            border-bottom: 4px solid black;
+        }
+
+        .module-header h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+
+        .module-header p {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 24px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header-stat {
+            text-align: center;
+        }
+
+        .header-stat-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+
+        .header-stat-label {
+            font-size: 0.625rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            opacity: 0.7;
+        }
+
+        /* ===== FILTROS DE TAXONOMÍA ===== */
+        .taxonomy-filters {
+            display: flex;
+            gap: 8px;
+            padding: 16px 24px;
+            background: #f1f5f9;
+            border-bottom: 2px solid #e2e8f0;
+            flex-wrap: wrap;
+        }
+
+        .taxonomy-btn {
+            padding: 8px 16px;
+            border: 2px solid black;
+            background: white;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .taxonomy-btn:hover {
+            background: #f1f5f9;
+        }
+
+        .taxonomy-btn.active {
+            background: black;
+            color: white;
+        }
+
+        /* ===== TABLA DE PRECIOS ESTÁNDAR ===== */
+        .price-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .price-table thead {
+            background: #1e293b;
+            color: white;
+        }
+
+        .price-table th {
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 0.625rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 700;
+        }
+
+        .price-table th:nth-child(3),
+        .price-table th:nth-child(4),
+        .price-table th:nth-child(5) {
+            text-align: right;
+        }
+
+        .price-table tbody tr {
+            border-bottom: 1px solid #e2e8f0;
+            transition: background 0.2s;
+        }
+
+        .price-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .price-table td {
+            padding: 16px;
+            font-size: 0.875rem;
+        }
+
+        /* Columna de producto */
+        .product-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .product-icon {
+            width: 40px;
+            height: 40px;
+            background: #e0f2fe;
+            border: 2px solid #0ea5e9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .product-name {
+            font-weight: 600;
+        }
+
+        .product-taxonomy {
+            font-size: 0.625rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Columna de muestras */
+        .samples-cell {
+            text-align: center;
+        }
+
+        .samples-count {
+            font-weight: 700;
+            color: #3b82f6;
+        }
+
+        .samples-label {
+            font-size: 0.625rem;
+            color: #94a3b8;
+            display: block;
+        }
+
+        /* Columnas de precios */
+        .price-cell {
+            text-align: right;
+            font-family: 'Courier New', monospace;
+        }
+
+        .price-standard {
+            font-size: 1.125rem;
+            font-weight: 800;
+            color: #059669;
+        }
+
+        .price-range {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        /* Columna de tendencia */
+        .trend-cell {
+            text-align: right;
+        }
+
+        .trend-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border-radius: 4px;
+        }
+
+        .trend-up {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .trend-down {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .trend-stable {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        /* Columna de confianza */
+        .confidence-cell {
+            text-align: right;
+        }
+
+        .confidence-bar {
+            width: 60px;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #fbbf24 0%, #22c55e 100%);
+            transition: width 0.5s;
+        }
+
+        .confidence-value {
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        /* ===== LEYENDA / METODOLOGÍA ===== */
+        .methodology {
+            padding: 20px 24px;
+            background: #fffbeb;
+            border-top: 4px solid #fbbf24;
+        }
+
+        .methodology-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #92400e;
+            margin-bottom: 8px;
+        }
+
+        .methodology-text {
+            font-size: 0.75rem;
+            color: #78350f;
+            line-height: 1.6;
+        }
+
+        .formula-box {
+            background: white;
+            border: 2px solid #fbbf24;
+            padding: 12px 16px;
+            margin-top: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            color: #1e293b;
+        }
+
+        /* ===== FOOTER ===== */
+        .module-footer {
+            padding: 16px 24px;
+            background: #f1f5f9;
+            border-top: 2px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .last-updated {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        .export-btn {
+            padding: 10px 20px;
+            background: black;
+            color: white;
+            border: none;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .export-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .price-table {
+                font-size: 0.75rem;
+            }
+
+            .price-table th,
+            .price-table td {
+                padding: 10px 8px;
+            }
+
+            .product-icon {
+                display: none;
+            }
+
+            .header-stats {
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="price-standards-module">
+        <!-- HEADER -->
+        <header class="module-header">
+            <h1>📊 Índice de Precios Estándar</h1>
+            <p>Precios de referencia calculados a partir del valor social agregado por categoría.</p>
+
+            <div class="header-stats">
+                <div class="header-stat">
+                    <div class="header-stat-value">1,247</div>
+                    <div class="header-stat-label">Productos Analizados</div>
+                </div>
+                <div class="header-stat">
+                    <div class="header-stat-value">8,532</div>
+                    <div class="header-stat-label">Votos Procesados</div>
+                </div>
+                <div class="header-stat">
+                    <div class="header-stat-value">92%</div>
+                    <div class="header-stat-label">Confianza Promedio</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- FILTROS DE TAXONOMÍA -->
+        <nav class="taxonomy-filters">
+            <button class="taxonomy-btn active">Todos</button>
+            <button class="taxonomy-btn">Tecnología</button>
+            <button class="taxonomy-btn">Servicios</button>
+            <button class="taxonomy-btn">Consultoría</button>
+            <button class="taxonomy-btn">Alimentos</button>
+            <button class="taxonomy-btn">Artesanías</button>
+        </nav>
+
+        <!-- TABLA DE PRECIOS ESTÁNDAR -->
+        <table class="price-table">
+            <thead>
+                <tr>
+                    <th>Producto / Categoría</th>
+                    <th>Muestras</th>
+                    <th>Precio Estándar</th>
+                    <th>Tendencia 7d</th>
+                    <th>Confianza</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Fila 1: Consultoría AI -->
+                <tr>
+                    <td>
+                        <div class="product-cell">
+                            <div class="product-icon">🤖</div>
+                            <div>
+                                <div class="product-name">Consultoría IA Mensual</div>
+                                <div class="product-taxonomy">Tecnología > Servicios > IA</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="samples-cell">
+                        <span class="samples-count">47</span>
+                        <span class="samples-label">productos</span>
+                    </td>
+                    <td class="price-cell">
+                        <div class="price-standard">$2,450,000 COP</div>
+                        <div class="price-range">Rango: $1.8M - $3.2M</div>
+                    </td>
+                    <td class="trend-cell">
+                        <span class="trend-badge trend-up">↑ +8.2%</span>
+                    </td>
+                    <td class="confidence-cell">
+                        <span class="confidence-bar">
+                            <span class="confidence-fill" style="width: 94%;"></span>
+                        </span>
+                        <span class="confidence-value">94%</span>
+                    </td>
+                </tr>
+
+                <!-- Fila 2: Desarrollo Web -->
+                <tr>
+                    <td>
+                        <div class="product-cell">
+                            <div class="product-icon">💻</div>
+                            <div>
+                                <div class="product-name">Desarrollo Web Full-Stack</div>
+                                <div class="product-taxonomy">Tecnología > Desarrollo > Web</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="samples-cell">
+                        <span class="samples-count">132</span>
+                        <span class="samples-label">productos</span>
+                    </td>
+                    <td class="price-cell">
+                        <div class="price-standard">$4,800,000 COP</div>
+                        <div class="price-range">Rango: $2.5M - $8M</div>
+                    </td>
+                    <td class="trend-cell">
+                        <span class="trend-badge trend-stable">→ +0.5%</span>
+                    </td>
+                    <td class="confidence-cell">
+                        <span class="confidence-bar">
+                            <span class="confidence-fill" style="width: 88%;"></span>
+                        </span>
+                        <span class="confidence-value">88%</span>
+                    </td>
+                </tr>
+
+                <!-- Fila 3: Café Especial -->
+                <tr>
+                    <td>
+                        <div class="product-cell">
+                            <div class="product-icon">☕</div>
+                            <div>
+                                <div class="product-name">Café Especial (500g)</div>
+                                <div class="product-taxonomy">Alimentos > Bebidas > Café</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="samples-cell">
+                        <span class="samples-count">89</span>
+                        <span class="samples-label">productos</span>
+                    </td>
+                    <td class="price-cell">
+                        <div class="price-standard">$42,000 COP</div>
+                        <div class="price-range">Rango: $28K - $65K</div>
+                    </td>
+                    <td class="trend-cell">
+                        <span class="trend-badge trend-up">↑ +3.1%</span>
+                    </td>
+                    <td class="confidence-cell">
+                        <span class="confidence-bar">
+                            <span class="confidence-fill" style="width: 91%;"></span>
+                        </span>
+                        <span class="confidence-value">91%</span>
+                    </td>
+                </tr>
+
+                <!-- Fila 4: Artesanía Wayúu -->
+                <tr>
+                    <td>
+                        <div class="product-cell">
+                            <div class="product-icon">🎨</div>
+                            <div>
+                                <div class="product-name">Mochila Wayúu Mediana</div>
+                                <div class="product-taxonomy">Artesanías > Tejidos > Wayúu</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="samples-cell">
+                        <span class="samples-count">156</span>
+                        <span class="samples-label">productos</span>
+                    </td>
+                    <td class="price-cell">
+                        <div class="price-standard">$185,000 COP</div>
+                        <div class="price-range">Rango: $120K - $350K</div>
+                    </td>
+                    <td class="trend-cell">
+                        <span class="trend-badge trend-down">↓ -2.4%</span>
+                    </td>
+                    <td class="confidence-cell">
+                        <span class="confidence-bar">
+                            <span class="confidence-fill" style="width: 96%;"></span>
+                        </span>
+                        <span class="confidence-value">96%</span>
+                    </td>
+                </tr>
+
+                <!-- Fila 5: Marketing Digital -->
+                <tr>
+                    <td>
+                        <div class="product-cell">
+                            <div class="product-icon">📈</div>
+                            <div>
+                                <div class="product-name">Gestión Redes Sociales (Mes)</div>
+                                <div class="product-taxonomy">Servicios > Marketing > Digital</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="samples-cell">
+                        <span class="samples-count">78</span>
+                        <span class="samples-label">productos</span>
+                    </td>
+                    <td class="price-cell">
+                        <div class="price-standard">$1,200,000 COP</div>
+                        <div class="price-range">Rango: $600K - $2.5M</div>
+                    </td>
+                    <td class="trend-cell">
+                        <span class="trend-badge trend-up">↑ +5.7%</span>
+                    </td>
+                    <td class="confidence-cell">
+                        <span class="confidence-bar">
+                            <span class="confidence-fill" style="width: 82%;"></span>
+                        </span>
+                        <span class="confidence-value">82%</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- METODOLOGÍA -->
+        <section class="methodology">
+            <h3 class="methodology-title">📐 Metodología de Cálculo</h3>
+            <p class="methodology-text">
+                El <strong>Precio Estándar</strong> se calcula agregando el <em>Valor Social Promedio</em>
+                de todos los productos dentro de la misma taxonomía. Se ponderan los votos por antigüedad
+                y se excluyen outliers (±2 desviaciones estándar).
+            </p>
+            <div class="formula-box">
+                <strong>Precio Estándar</strong> = Σ(Valor Social × Peso Temporal) / N productos
+                <br>
+                <strong>Confianza</strong> = (N muestras / Umbral mínimo) × Consistencia de datos
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="module-footer">
+            <span class="last-updated">
+                Última actualización: Hace 2 horas | Próxima: En 4 horas
+            </span>
+            <button class="export-btn">📥 Exportar CSV</button>
+        </footer>
+    </div>
+
+</body>
+
+</html>

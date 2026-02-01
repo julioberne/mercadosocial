@@ -1,0 +1,1 @@
+export { PriceStandardsIndex } from './PriceStandardsIndex';
